@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout, Typography, Tabs, Row, Col } from 'antd';
 import { CompassOutlined, CalendarOutlined, WalletOutlined } from '@ant-design/icons';
 import DestinationExplorer from './components/DestinationExplorer';
@@ -20,6 +20,8 @@ const TravelPlanner = () => {
     other: 0
   });
   const [activeTab, setActiveTab] = useState('explore');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [lastAddedDestination, setLastAddedDestination] = useState<Destination | null>(null);
   
   const handleAddToItinerary = (destination: Destination, date?: string) => {
     setSelectedDestinations(prev => {
@@ -29,8 +31,9 @@ const TravelPlanner = () => {
       return [...prev, destination];
     });
     
-    // Nếu có chọn ngày, chuyển sang tab lịch trình
     if (date) {
+      setSelectedDate(date);
+      setLastAddedDestination(destination);
       setActiveTab('itinerary');
     }
   };
@@ -70,6 +73,12 @@ const TravelPlanner = () => {
             selectedDestinations={selectedDestinations}
             onRemoveDestination={handleRemoveDestination}
             onUpdateBudget={handleUpdateBudget}
+            selectedDate={selectedDate}
+            lastAddedDestination={lastAddedDestination}
+            onDateProcessed={() => {
+              setSelectedDate(null);
+              setLastAddedDestination(null);
+            }}
           />
         </TabPane>
         

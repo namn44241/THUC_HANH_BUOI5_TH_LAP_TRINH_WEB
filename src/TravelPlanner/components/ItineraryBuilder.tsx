@@ -7,10 +7,11 @@ import {
 import { 
   PlusOutlined, DeleteOutlined, EditOutlined, 
   SaveOutlined, CalendarOutlined, DollarOutlined,
-  ClockCircleOutlined, EnvironmentOutlined
+  ClockCircleOutlined, EnvironmentOutlined, CloseOutlined
 } from '@ant-design/icons';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import moment from 'moment';
+import { v4 as uuidv4 } from 'uuid';
 import { Destination, Itinerary, ItineraryDay } from '../models';
 import { tienVietNam } from '@/utils/utils';
 import MyDateRangePicker from '@/components/MyDatePicker/RangePicker';
@@ -18,17 +19,24 @@ import MyDateRangePicker from '@/components/MyDatePicker/RangePicker';
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
 const { TextArea } = Input;
+const { RangePicker } = DatePicker;
 
 interface ItineraryBuilderProps {
   selectedDestinations: Destination[];
   onRemoveDestination: (dayId: string, destinationId: string) => void;
   onUpdateBudget: (expenses: Record<string, number>) => void;
+  selectedDate?: string | null;
+  lastAddedDestination?: Destination | null;
+  onDateProcessed?: () => void;
 }
 
 const ItineraryBuilder: React.FC<ItineraryBuilderProps> = ({ 
   selectedDestinations, 
   onRemoveDestination,
-  onUpdateBudget
+  onUpdateBudget,
+  selectedDate,
+  lastAddedDestination,
+  onDateProcessed
 }) => {
   const [itinerary, setItinerary] = useState<Itinerary>({
     id: '1',
@@ -67,7 +75,14 @@ const ItineraryBuilder: React.FC<ItineraryBuilderProps> = ({
           day: i + 1,
           date: currentDate.format('YYYY-MM-DD'),
           destinations: existingDay?.destinations || [],
-          notes: existingDay?.notes || ''
+          notes: existingDay?.notes || '',
+          expenses: existingDay?.expenses || {
+            accommodation: 0,
+            food: 0,
+            transportation: 0,
+            activities: 0,
+            other: 0
+          }
         });
       }
       
@@ -103,6 +118,64 @@ const ItineraryBuilder: React.FC<ItineraryBuilderProps> = ({
       }
     }
   }, [selectedDestinations]);
+
+  // Xử lý khi có điểm đến mới được thêm vào với ngày cụ thể
+  useEffect(() => {
+    if (selectedDate && lastAddedDestination && onDateProcessed) {
+      const dateObj = moment(selectedDate);
+      
+      // Kiểm tra xem ngày đã tồn tại trong lịch trình chưa
+      const existingDayIndex = itinerary.days.findIndex(
+        day => moment(day.date).format('YYYY-MM-DD') === selectedDate
+      );
+      
+      if (existingDayIndex >= 0) {
+        // Nếu ngày đã tồn tại, thêm điểm đến vào ngày đó
+        const updatedDays = [...itinerary.days];
+        const existingDay = updatedDays[existingDayIndex];
+        
+        // Kiểm tra xem điểm đến đã tồn tại trong ngày này chưa
+        if (!existingDay.destinations.some(d => d.id === lastAddedDestination.id)) {
+          existingDay.destinations.push(lastAddedDestination);
+          setItinerary(prev => ({
+            ...prev,
+            days: updatedDays
+          }));
+          
+          // Cập nhật chi phí
+          calculateExpenses(updatedDays);
+        }
+      } else {
+        // Nếu ngày chưa tồn tại, tạo ngày mới với điểm đến
+        const newDay: ItineraryDay = {
+          id: uuidv4(),
+          day: itinerary.days.length + 1,
+          date: dateObj.toDate(),
+          destinations: [lastAddedDestination],
+          notes: '',
+          expenses: {
+            accommodation: 0,
+            food: 0,
+            transportation: 0,
+            activities: 0,
+            other: 0
+          }
+        };
+        
+        const updatedDays = [...itinerary.days, newDay];
+        setItinerary(prev => ({
+          ...prev,
+          days: updatedDays
+        }));
+        
+        // Cập nhật chi phí
+        calculateExpenses(updatedDays);
+      }
+      
+      // Đánh dấu là đã xử lý
+      onDateProcessed();
+    }
+  }, [selectedDate, lastAddedDestination]);
 
   // Tính toán chi phí
   const calculateExpenses = (days: ItineraryDay[]) => {
@@ -257,7 +330,7 @@ const ItineraryBuilder: React.FC<ItineraryBuilderProps> = ({
           </Space>
         </div>
         
-        <Row gutter={16}>
+        {/* <Row gutter={16}>
           <Col span={24}>
             <Space direction="vertical" style={{ width: '100%' }}>
               <Text>Chọn ngày đi:</Text>
@@ -267,8 +340,8 @@ const ItineraryBuilder: React.FC<ItineraryBuilderProps> = ({
                   if (dates) {
                     setItinerary(prev => ({
                       ...prev,
-                      startDate: dates[0],
-                      endDate: dates[1]
+                      startDate: dates[0].format('YYYY-MM-DD'),
+                      endDate: dates[1].format('YYYY-MM-DD')
                     }));
                   }
                 }}
@@ -278,7 +351,7 @@ const ItineraryBuilder: React.FC<ItineraryBuilderProps> = ({
               />
             </Space>
           </Col>
-        </Row>
+        </Row> */}
         
         <DragDropContext onDragEnd={handleDragEnd}>
           {itinerary.days.length > 0 ? (
