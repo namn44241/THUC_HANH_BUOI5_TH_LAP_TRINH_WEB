@@ -50,7 +50,12 @@
 		component: '../TravelPlanner',
 		icon: 'CompassOutlined',
 	},
-
+	{
+		path: '/travel-planner/admin',
+		name: 'TravelPlanner-admin',
+		component: '../TravelPlanner/components/admin/AdminDashboard.tsx',
+		icon: 'CompassOutlined',
+	},
 	// DANH MUC HE THONG
 	// {
 	// 	name: 'DanhMuc',
