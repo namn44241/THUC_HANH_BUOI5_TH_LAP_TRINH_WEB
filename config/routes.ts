@@ -42,6 +42,14 @@
 		icon: 'OrderedListOutlined',
 		component: './TodoList',
 	},
+	
+	// TRAVEL PLANNER
+	{
+		path: '/travel-planner',
+		name: 'TravelPlanner',
+		component: '../TravelPlanner',
+		icon: 'CompassOutlined',
+	},
 
 	// DANH MUC HE THONG
 	// {

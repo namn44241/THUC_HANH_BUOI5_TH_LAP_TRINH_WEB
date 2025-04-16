@@ -1,0 +1,73 @@
+.travel-planner {
+  padding: 0;
+  
+  .travel-planner-header {
+    text-align: center;
+    margin-bottom: 24px;
+    
+    h2 {
+      margin-bottom: 8px;
+    }
+    
+    p {
+      color: rgba(0, 0, 0, 0.45);
+    }
+  }
+  
+  .ant-tabs-nav {
+    margin-bottom: 24px;
+  }
+  
+  .ant-card {
+    margin-bottom: 24px;
+  }
+  
+  .ant-list-item {
+    transition: all 0.3s;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+  
+  .width-select-custom {
+    width: calc(100% - 40px);
+  }
+  
+  .fullWidth {
+    width: 100%;
+  }
+  
+  // Responsive
+  @media (max-width: 768px) {
+    .ant-tabs-tab {
+      padding: 8px 12px;
+    }
+    
+    .ant-card-body {
+      padding: 16px;
+    }
+    
+    .ant-list-item-meta-avatar {
+      margin-right: 12px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .travel-planner-header {
+      h2 {
+        font-size: 20px;
+      }
+    }
+    
+    .ant-tabs-tab {
+      padding: 8px 8px;
+      margin: 0 4px 0 0;
+    }
+    
+    .ant-list-item-meta-avatar img {
+      width: 40px;
+      height: 40px;
+    }
+  }
+} 
